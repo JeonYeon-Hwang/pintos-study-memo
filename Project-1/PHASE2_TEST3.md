@@ -105,7 +105,7 @@ context switch(해당 스레드를 cpu에 올리기)
 | thread_create() | 새 스레드를 만듦 | 새롭게 실행할 후보를 q에 추가 | 
 | thread_unblock() | wake한 스레드를 runnable하게 | 해당 후보 스레드를 q에 추가 | 
 | thread_yield() | 현재 실행 중인 스레드가 스스로 양보 | 다른 후보 선택 후 q에 해당 스레드 넣기 | 
-|thread_set_priority()| 현재 실행 중인 스레드 우선순위 변경| |
+| thread_set_priority() | 현재 실행 중인 스레드 우선순위 변경| priority가 낮아질 경우 yeild 해야 함 |
 
 어떻게 수정해야 하나?
 thread_create() → priority가 높은 스레드를 해당 위치의 q에 중간 삽입하기(현재는 FIFO 상황)
