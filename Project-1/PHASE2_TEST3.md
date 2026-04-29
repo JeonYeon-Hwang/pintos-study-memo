@@ -1,4 +1,4 @@
-## Threads
+## Threads: phase 2
 **alarm-priority**
 alarm-priority란? → priority가 우위인 스레드가 CPU를 점유하도록 하는 로직.
 따라서... 특정 복수의 스레드가 `동시에` wake 되었을 때만 로직이 수행.

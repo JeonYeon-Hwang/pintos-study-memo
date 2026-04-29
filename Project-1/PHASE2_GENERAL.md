@@ -65,7 +65,7 @@ sema_up (struct semaphore *sema) {
 
 **결과 output**
 ```
-perl -I../.. ../../tests/threads/priority-sema.ck tests/threads/priority-sema tests/threads/priority-sema.result
+tests/threads/priority-sema tests/threads/priority-sema.result
 pass tests/threads/priority-sema
 ```
 재 빌드 후 테스트가 통과되었음을 알 수 있다.
@@ -129,5 +129,5 @@ LOCK이 걸려 있을 때:
  (LOCK owner back) <------- thread A (10)             |
 ```
 스레드 B가 `뭔가 요청`을 할 경우, 우선순위가 낮은 스레드 B를 불러오고 자신의 우선순위를 임시로 준다.
-전문 용어로 `우선순위 역적(Priority Inversion)`의 발생을 방지하기 위해서.
+전문 용어로 `우선순위 역전(Priority Inversion)`의 발생을 방지하기 위해서.
 아... 근데 이건 phase 3에서 수행해야 하는 문제라고 함. 다음에 하겠음!
