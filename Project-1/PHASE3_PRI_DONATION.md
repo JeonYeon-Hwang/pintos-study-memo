@@ -158,3 +158,31 @@ priority-donate-multiple2
 <br>
 
 ### 구현 및 수정(donate-nest)
+**개요**: 현재 기부는 직계만 가능하도록 되어있음 → 중첩하여 기부하도록 로직 추가 구현 필요.
+**권고**: OS 특성상 재귀는 지양, 반복문으로 중첩 적용 ... but 최대 중첩 계층(?) 제한 필요.
+
+**여기서 내가 가진 의문점**:
+혹시 하나의 스레드가 trigger가 되어 자식의 갯수가 늘어나서, 
+최종적으로 leaf 단계에서는 여러 개의 thread의 우선순위가 변동되어야 하는가?
+
+이해한 사실! → donor는 여럿일 수 있으나, holder는 오직 하나(내가 대기타는 앞 스레드도 하나)이다.
+따라서... 이것을 트리 구조로 설명을 한다면, 위로 올라갈 수록 윗 줄기로 모아지는 모양새.
+<br>
+
+**수정함수: lock_aquire**
+```
+while(idx < 7){
+    struct lock *next_lock = holder->locked_by;
+    if(next_lock == NULL) break;
+    holder = next_lock->holder; 
+    if(holder == NULL) break;
+    
+    여기서 holder는 상위의 thread => priority 갱신 수행
+    if( holder->priority < curr->priority){
+        holder->priority = curr->priority;
+    }
+
+    idx++;
+}
+```
+추가: lock_release는 추가로 구현할 필요가 없다 → lock 잃을 시 비교군 자체는 충분
