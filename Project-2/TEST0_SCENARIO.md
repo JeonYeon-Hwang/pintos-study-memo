@@ -32,7 +32,9 @@ graph TD
 | B | Syscall Skeleton | (전체 공통) | 유저가 부를 때 응답할 '입구' 뚫기 |
 | C | Memory Check | "bad-*, sc-boundary-*" |유저가 커널 주소 찌르면 바로 컷하기 |
 | D | System Call: EXIT |"exit, halt"," |""나 종료한다!""고 제대로 인사하고 죽기" |
+| | **병렬** | **기능 구현** | **팀별로 찢어져서 작업 가능** |
 | E/H | Branch 1: 프로세스 | "exec-*, wait-*" | 자식 낳고 죽을 때까지 잘 기다려주기 |
 | F/I | Branch 2: 파일 | "create-*, open-*, read-*, write-*" | 파일 만들고 읽고 쓰는 심부름 하기 |
 | G | Branch 3: 번호표(FDT) | (내부 로직) | 각 프로세스가 쓸 파일 번호표 장부 만들기 |
+| | **통합** | **마무리** | **전체 로직 완성 및 예외 처리** |
 | J | Multi & Robustness | "multi-*, syn-*" | 떼거지로 몰려와도 안 터지고 버티기 |
