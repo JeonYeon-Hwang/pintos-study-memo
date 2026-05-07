@@ -54,3 +54,81 @@ exec: <u>exec</u>라는 syscall 호출. argument passing 진행.
 **Fork이란?**
 앞서 말했다시피, 부모 프로세스를 통째로 복제하여 생성하는 것
 *보통 Fork 시행 후 새 자식에게 → Exec하여 새 환경을 셋팅*
+
+호출 시 실행 순서를 살펴보자:
+`syscall(FORK)` → `process_fork함수 분기` → `tid_t 결과값 반환`
+
+**함수 살펴보기**
+예외처리 분기는 생략되어 있다:
+```
+process_fork (이름, intr_frame *if_) {
+  struct thread *curr = 현 스레드
+  struct child_status *cs = 구조체1
+  struct fork_args *args = 구조체2
+
+  새 cs 구조체 값 설정 => {
+    tid = TID_ERROR
+    exit_status = -1
+    waited, exited, fork_sucess = false
+    fork_sema, wait_sema => sema_init하기
+  }
+
+  현 스레드의 child_status_list에 elem에 설정한 cs구조체 넣기
+
+  args 구조체 값 설정 => {
+    parent = 현 스레드
+    if_ = 현 if_ 값들
+    cs = 새 cs
+  }
+
+  이제 자식 스레드를 생성한다
+  tid = thread_create (이름, PRI_DEFAULT, __do_fork, args 구조체);
+
+  .. 잘은 모르겠지만, 추후 배선 작업 같음 ..
+  args = NULL;
+  cs->tid = tid;
+  sema_down (&cs->fork_sema);
+
+  return tid;
+}
+```
+<br>
+
+여기서 스레드가 생성되는 동시에 __do_fork 함수로 과정을 밟게 됢:
+→ __do_fork 함수 살펴보기:
+```
+__do_fork (void *aux) {
+  struct fork_args *args = 부모의 args 구조체
+  struct thread *curr = 현 자식 스레드
+  struct thread *parent => 부모가 될 스레드?
+  struct intr_frame if_ => 레지스터 상태
+
+  parent = args에서 부모 스레드를 할당한다.
+  curr->self_status = args에서 cs를 할당한다.
+
+  부모가 멈췄던 순간의 포즈(레지스터) 값을 그대로 if_에 복사
+  memcpy (&if_, &args->if_, sizeof if_);
+  curr->pml4 = 독자 메모리 공간 생성
+
+  process_activate (curr) => 현 프로세스를 활성화한다.
+
+  .. 잘 이해는 못하겠지만 페이지 테이블을 복사하는 무언가라고 함 ..
+  supplemental_page_table_init (&curr->spt);
+	if (!supplemental_page_table_copy (&curr->spt, &parent->spt))
+
+  자식 프로세스에서 fork()의 반환값?은 0이다.
+  if_.R.rax = 0;
+
+  process_init () => 아마 활성화 → 개시 순 일 듯?
+  현 스레드의 상태값 중 fork_success = "성공"으로
+  부모에게 자신이 생성되었음을 알림.
+  sema_up (&curr->self_status->fork_sema);
+
+  do_iret (&if_);
+}
+```
+<br>
+
+### 프로세스 생애주기
+**process_wait가 생애주기를 주관한다**
+why? → 
