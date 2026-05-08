@@ -122,6 +122,6 @@ read (fd, buffer, size) {
 ### 5차: ROX
 
 **ROX란 무엇인가?**
-Read Only Executable의 약어로, 
+
 
 

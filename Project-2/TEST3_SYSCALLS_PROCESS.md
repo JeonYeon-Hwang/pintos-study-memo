@@ -113,8 +113,7 @@ __do_fork (void *aux) {
   process_activate (curr) => 현 프로세스를 활성화한다.
 
   .. 잘 이해는 못하겠지만 페이지 테이블을 복사하는 무언가라고 함 ..
-  supplemental_page_table_init (&curr->spt);
-	if (!supplemental_page_table_copy (&curr->spt, &parent->spt))
+  if (!pml4_for_each (parent->pml4, duplicate_pte, parent))
 
   자식 프로세스에서 fork()의 반환값?은 0이다.
   if_.R.rax = 0;
@@ -127,8 +126,32 @@ __do_fork (void *aux) {
   do_iret (&if_);
 }
 ```
+두 함수의 흐름과 구조를 정리하자!
+... 1차 process_fork: 부모 스레드의 상태값 → 구조체 args{ cs{ } }에 저장
+... 2차 thread_create: 자식 스레드 생성 & 구조체와 __do_fork함수 주입
+... 3차 __do_fork: 구조체에서 상태값 가져오기, 자식 스레드에 주입하기
+... 이후에는 → 자식 프로세스 활성화 & fb_table을 복제해서 넣어주기
+
+*왜 fb_table을 바로 복제가 되지 않을까?*
+테이블에 저장된 주소값은 파일 전용 상태(file 구조체)의 주소를 가짐
+이것은 일종의 통로로, 만약 복제된 테이블이 동일한 `통로 주소값`을 가지면,
+두 스레드가 하나의 통로 가지고 사용하는 충돌이 발생!
+
+→ 하나의 파일이라 해도 연결 통로는 각 스레드 마다 가지고 있어야 한다.
+따라서 file_duplicate를 활용하여 통로 또한 복제하여 fb_table에 주입해야 함.
 <br>
 
 ### 프로세스 생애주기
 **process_wait가 생애주기를 주관한다**
-why? → 
+How? → 먼저 pintos 코어는 1개, 동시에 스레드 1개만 점유가 가능하다(교체를 해야 함)
+process_wait 호출 시: 해당 부모 스레드의 child_list를 순회 → exit한 child를 remove
+
+process_wait은 언제 호출 되는가? 
+.. 자식 스레드가 process_exit호출: sema_up(wait_sema)가 발동
+.. sama에서 잠들어 있던 부모 스레드가 ready_list로 이동 & 실행 
+
+**두 개의 semaphore의 역할**
+thread_status를 표현하는 구조체에는 두 개의 sema가 존재한다
+둘 다 부모 스레드를 부르는 `트리거`역할을 한다
+**wait_sema**: 자식이 exit할 때 → 부모 호출하여 list에서 빼기 & sema_up
+**fork_sema**: 자식이 생성될 때 → 부모 호출하여 list에 넣기 & sema_down
