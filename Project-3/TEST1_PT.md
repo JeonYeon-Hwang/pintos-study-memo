@@ -188,3 +188,25 @@ upage += PGSIZE;
 load_segment()의 ofs 미증가가 문제라고 함 → upage만 PGSIZE만 오름.
 ofs도 증가해야 하는데.. 그럼 ofs는 무엇? → 파일 안에서 몇 번째 binary 읽을 지.
 ofs 또한 각 page.. segment의 시작점을 가리켜야 한다.
+
+이전 오류 출력 문구는 다음과 같다:
+
+<small>Acceptable output:
+  (pt-grow-stack) begin
+  (pt-grow-stack) cksum: 3424492700
+  (pt-grow-stack) end
+Differences in `diff -u' format:
+마 (pt-grow-stack) begin
+마 (pt-grow-stack) cksum: 3424492700
+마 (pt-grow-stack) end
+뿔 pt-grow-stack: dying due to interrupt 0x06 (#UD Invalid Opcode Exception).
+뿔 Interrupt 0x06 (#UD Invalid Opcode Exception) at rip=40103b
+뿔  cr2=00000000000000ff error=               0
+뿔 rax 00000000000000ff rbx 0000800424305000 rcx 00000000000000ff rdx 0000000000406dc0
+뿔 rsp 000000004747ff78 rbp 000000004747ff90 rsi 0000000000000400 rdi 0000000000000000
+뿔 rip 000000000040103b r8 0000000000401323  r9 00008004243f5000 r10 0000010424302800
+뿔 r11 00008004243ef000 r12 0000800422bcd800 r13 00008004243f1000 r14 0000800420a1b100
+뿔 r15 00008004243f0000 rflags 00000202
+뿔 es: 001b ds: 001b cs: 0023 ss: 001b</small>
+
+*추후 분석하기!*
