@@ -14,7 +14,7 @@ graph TD
 
 **표 정리**
 | 노드 | 단계명 | 관련 테스트 | 목표 |
-| :--- | :---- | :--- | :--- | 
+| :--- | :--- | :--- | :--- | 
 | A | SPT & Frame Table | (골격 전반) | 케이스 통과에 앞서 필수로 구현해야 하는 단계 |
 | B | Stack Growth & Lazy Loading | pt-* / lazy-* | SPT구현 .. stack growth 기능 확인, 이후에는 lazy(지연)로딩이 구현되었는지 체크 |
 | C | Basic Demand Paging | page-* | page falut → 물리 메모리에 올리기 |
