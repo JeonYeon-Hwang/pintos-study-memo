@@ -110,6 +110,7 @@ check_writable (*buffer, size){
 <br>
 
 ### pt-grow-stk-sc
+
 **테스트 개요 및 분석**
 write file한 다음(1) → read를 수행(2)하는 로직으로 보임.
 대부분의 로직은 정상적으로 출력되고 있으나, 다음 줄을 기준으로 exit(-1):
