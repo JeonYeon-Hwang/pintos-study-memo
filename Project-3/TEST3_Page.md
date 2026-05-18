@@ -107,3 +107,5 @@ child-sort: exit(123)
 <br>
 
 **page-merge-mm**
+이를 구현하기 위해서는 mmap과 unmap을 구현해야 하는데, 
+아후의 Mmap 테스트 계열 통과 후 진행하는 것으로 결정.
